@@ -1,0 +1,101 @@
+enable
+configure terminal
+interface se2/0
+ ip address 11.0.0.1 255.255.255.0
+ no shutdown
+
+interface gig0/0
+ ip address 192.168.10.1 255.255.255.0
+ no shutdown
+
+interface gig0/1
+ ip address 172.16.0.1 255.255.0.0
+ no shutdown
+
+exit
+
+enable
+configure terminal
+interface se2/0
+ ip address 11.0.0.2 255.255.255.0
+ no shutdown
+
+interface se3/0
+ ip address 12.0.0.1 255.255.255.0
+ no shutdown
+
+exit
+
+
+enable
+configure terminal
+interface se3/0
+ ip address 12.0.0.3 255.255.255.0
+ no shutdown
+
+interface gig0/0
+ ip address 192.168.20.1 255.255.255.0
+ no shutdown
+
+exit
+
+
+router rip
+ version 2
+ network 11.0.0.0
+ network 192.168.10.0
+ network 172.16.0.0
+ exit
+
+
+router rip
+ version 2
+ network 11.0.0.0
+ network 12.0.0.0
+ exit
+
+
+router rip
+ version 2
+ network 12.0.0.0
+ network 192.168.20.0
+ exit
+
+
+ip dns server
+ip host www.NAME.com 192.168.20.10  # Assuming PC5 has this IP
+
+ip dhcp excluded-address 192.168.10.1
+ip dhcp excluded-address 192.168.10.254
+
+ip dhcp pool POOL-CLASS-C
+ network 192.168.10.0 255.255.255.0
+ default-router 192.168.10.1
+ dns-server 192.168.20.1
+
+ip dhcp excluded-address 192.168.20.1
+ip dhcp excluded-address 192.168.20.254
+
+ip dhcp pool POOL-CLASS-B
+ network 192.168.20.0 255.255.255.0
+ default-router 192.168.20.1
+ dns-server 192.168.20.1
+
+
+interface gig0/0
+ ip helper-address 192.168.20.1
+ exit
+
+interface gig0/1
+ ip helper-address 192.168.20.1
+ exit
+
+
+interface se2/0
+ ip helper-address 192.168.20.1
+ exit
+
+interface se3/0
+ ip helper-address 192.168.20.1
+ exit
+
